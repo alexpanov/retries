@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/alexpanov/retries.svg)](https://travis-ci.org/alexpanov/retries)
+
 ```java
 Retryable<Object> retryable = new Retryable<Object>() {
     @Override
