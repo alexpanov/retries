@@ -67,17 +67,4 @@ public class RetriesTest {
     public void throwsOnTwoDefaultValues() throws Exception {
         retries.orElse(expectedResult).orElse("Hello");
     }
-
-    @Test
-    public void name() throws Exception {
-        Retryable<Object> retryable = new Retryable<Object>() {
-            @Override
-            public Object tryOnce() throws Exception {
-                return new Object();
-            }
-        };
-
-        Object result = new Retries<Object>(retryable).perform();
-
-    }
 }
