@@ -1,10 +1,10 @@
 package me.alexpanov.retries;
 
-final class ConcreteDefault<Result> implements Default<Result> {
+final class ConcreteOptional<Result> implements Optional<Result> {
 
     private final Result value;
 
-    public ConcreteDefault(Result value) {
+    public ConcreteOptional(Result value) {
         if (value == null) {
             throw new NullPointerException("Default result cannot be null");
         }
@@ -20,5 +20,10 @@ final class ConcreteDefault<Result> implements Default<Result> {
     @Override
     public Result value() {
         return value;
+    }
+
+    @Override
+    public Optional<Result> or(Optional<Result> optional) {
+        return this;
     }
 }

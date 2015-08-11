@@ -38,14 +38,14 @@ public class RetriesTest {
         verify(retryable).tryOnce();
     }
 
-    @Test(expected = FailedAfterMaxAttemptsException.class)
+    @Test(expected = FailedToComputeAValueException.class)
     public void onMaxAttemptsFailedThrows() throws Exception {
         when(retryable.tryOnce()).thenThrow(IllegalArgumentException.class);
         retries.stopOnMaxFailures(2).perform();
         verify(retryable, times(2)).tryOnce();
     }
 
-    @Test(expected = FailedAfterMaxAttemptsException.class)
+    @Test(expected = FailedToComputeAValueException.class)
     public void catchesCheckedExceptions() throws Exception {
         new Retries<Object>(new CheckedExceptionThrowingRetryable()).stopOnMaxFailures(2).perform();
     }

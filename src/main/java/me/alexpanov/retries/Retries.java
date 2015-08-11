@@ -3,14 +3,11 @@ package me.alexpanov.retries;
 public final class Retries<Result> {
 
     private final Retryable<Result> retryable;
-
-    private Default<Result> defaultResult = new MissingDefault<Result>();
-
-    private final Options options;
+    private final Options<Result> options;
 
     public Retries(Retryable<Result> retryable) {
         this.retryable = retryable;
-        this.options = new Options();
+        this.options = new Options<Result>();
     }
 
     public Retries<Result> stopOnMaxFailures(int maxRetries) {
@@ -18,25 +15,16 @@ public final class Retries<Result> {
         return this;
     }
 
-    public Result perform() throws FailedAfterMaxAttemptsException {
-        for (int i = 0; i < options.maxRetries(); i++) {
-            try {
-                return retryable.tryOnce();
-            } catch (Exception ignored) {
-            }
+    public Result perform() throws FailedToComputeAValueException {
+        RetryRuntime<Result> runtime = new RetryRuntime<Result>(retryable, options);
+        while (runtime.hasWorkToDo()) {
+            runtime = runtime.performUnitOfWork();
         }
-        if (defaultResult.isPresent()) {
-            return defaultResult.value();
-        }
-
-        throw new FailedAfterMaxAttemptsException();
+        return runtime.workResult();
     }
 
     public Retries<Result> orElse(Result value) {
-        if (defaultResult.isPresent()) {
-            throw new IllegalStateException("Default value has already been set: " + defaultResult.value());
-        }
-        this.defaultResult = new ConcreteDefault<Result>(value);
+        options.defaultResult(new ConcreteOptional<Result>(value));
         return this;
     }
 }

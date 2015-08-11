@@ -1,6 +1,6 @@
 package me.alexpanov.retries;
 
-final class MissingDefault<Result> implements Default<Result> {
+final class MissingOptional<Result> implements Optional<Result> {
 
     @Override
     public boolean isPresent() {
@@ -10,5 +10,10 @@ final class MissingDefault<Result> implements Default<Result> {
     @Override
     public Result value() {
         throw new UnsupportedOperationException("Cannot fetch a missing value");
+    }
+
+    @Override
+    public Optional<Result> or(Optional<Result> optional) {
+        return optional;
     }
 }
