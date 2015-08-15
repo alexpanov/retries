@@ -9,6 +9,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -88,5 +90,31 @@ public class RetriesTest {
                 return input != expectedResult;
             }
         };
+    }
+
+    @Test
+    public void onEachFailureIsNotUsedOnSuccesses() throws Exception {
+        when(retryable.tryOnce()).thenReturn(expectedResult);
+        FailureSubscriber failureSubscriber = mock(FailureSubscriber.class);
+        retries.onEachFailure(failureSubscriber).perform();
+        verify(failureSubscriber, never()).handle();
+    }
+
+    @Test
+    public void onEachFailureIsUsedOnFailures() throws Exception {
+        when(retryable.tryOnce()).thenReturn(null).thenReturn(expectedResult);
+        FailureSubscriber failureSubscriber = mock(FailureSubscriber.class);
+        retries.onEachFailure(failureSubscriber).perform();
+        verify(failureSubscriber).handle();
+    }
+
+    @Test
+    public void onEachFailureSupportsTwoHooks() throws Exception {
+        when(retryable.tryOnce()).thenReturn(null).thenReturn(expectedResult);
+        FailureSubscriber firstSubscriber = mock(FailureSubscriber.class);
+        FailureSubscriber secondSubscriber = mock(FailureSubscriber.class);
+        retries.onEachFailure(firstSubscriber).onEachFailure(secondSubscriber).perform();
+        verify(firstSubscriber).handle();
+        verify(secondSubscriber).handle();
     }
 }

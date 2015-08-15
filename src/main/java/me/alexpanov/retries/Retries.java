@@ -39,4 +39,8 @@ public final class Retries<Result> {
     public Retries<Result> ignoreIfResult(Predicate<? super Result> matches) {
         return new Retries<Result>(retryable, options.ignoreIfResult(matches));
     }
+
+    public Retries<Result> onEachFailure(FailureSubscriber failureSubscriber) {
+        return new Retries<Result>(retryable, options.onEachFailure(failureSubscriber));
+    }
 }

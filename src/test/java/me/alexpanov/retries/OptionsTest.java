@@ -30,10 +30,26 @@ public class OptionsTest {
     }
 
     @Test
-    public void usesPredicateToDetermineSatisfiedResult1() throws Exception {
+    public void resultSatisfiesPredicate() throws Exception {
         Options<String> options = this.options.ignoreIfResult(isEmpty());
+        WorkHistory<String> historyWithNonEmptyLastResult = emptyWorkHistory.tryEndedIn(Optional.of("a"));
+        assertThat(options.isSatisfiedBy(historyWithNonEmptyLastResult)).isTrue();
+    }
+
+    @Test
+    public void multiplePredicatesAreUsed() throws Exception {
+        Options<String> options = this.options.ignoreIfResult(isEmpty()).ignoreIfResult(startsWith("a"));
         WorkHistory<String> historyWithEmptyLastResult = emptyWorkHistory.tryEndedIn(Optional.of("a"));
-        assertThat(options.isSatisfiedBy(historyWithEmptyLastResult)).isTrue();
+        assertThat(options.isSatisfiedBy(historyWithEmptyLastResult)).isFalse();
+    }
+
+    private Predicate<? super String> startsWith(final String start) {
+        return new Predicate<String>() {
+            @Override
+            public boolean apply(String input) {
+                return input.startsWith(start);
+            }
+        };
     }
 
     private Predicate<CharSequence> isEmpty() {
@@ -44,4 +60,5 @@ public class OptionsTest {
             }
         };
     }
+
 }

@@ -1,5 +1,7 @@
 package me.alexpanov.retries;
 
+import java.util.Collection;
+
 import com.google.common.base.Optional;
 
 final class RetryRuntime<Result> {
@@ -13,8 +15,7 @@ final class RetryRuntime<Result> {
         this(retryable, options, new WorkHistory<Result>(), Optional.<Result>absent());
     }
 
-    private RetryRuntime(Retryable<Result> retryable,
-                         Options<Result> options, WorkHistory<Result> workHistory,
+    private RetryRuntime(Retryable<Result> retryable, Options<Result> options, WorkHistory<Result> workHistory,
                          Optional<Result> computedResult) {
         this.retryable = retryable;
         this.options = options;
@@ -36,6 +37,10 @@ final class RetryRuntime<Result> {
         try {
             return Optional.of(retryable.tryOnce());
         } catch (Exception e) {
+            Collection<FailureSubscriber> failureSubscribers = options.failureSubscribers();
+            for (FailureSubscriber failureSubscriber : failureSubscribers) {
+                failureSubscriber.handle();
+            }
             return Optional.absent();
         }
     }
