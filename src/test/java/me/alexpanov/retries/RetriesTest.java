@@ -1,8 +1,8 @@
 package me.alexpanov.retries;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -17,10 +17,14 @@ public class RetriesTest {
     @Mock
     private Retryable<Object> retryable;
 
-    @InjectMocks
     private Retries<Object> retries;
 
     private String expectedResult = new RandomStrings().createOne();
+
+    @Before
+    public void createRetries() throws Exception {
+        retries = new Retries<Object>(retryable);
+    }
 
     @Test
     public void retriesOnFailure() throws Exception {

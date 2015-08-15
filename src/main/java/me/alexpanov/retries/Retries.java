@@ -10,9 +10,14 @@ public final class Retries<Result> {
         this.options = new Options<Result>();
     }
 
+    private Retries(Retryable<Result> retryable, Options<Result> options) {
+        this.retryable = retryable;
+        this.options = options;
+    }
+
     public Retries<Result> stopOnMaxFailures(int maxRetries) {
-        options.maxRetries(maxRetries);
-        return this;
+        Options<Result> newOptions = options.maxRetries(maxRetries);
+        return new Retries<Result>(retryable, newOptions);
     }
 
     public Result perform() throws FailedToComputeAValueException {
@@ -24,7 +29,7 @@ public final class Retries<Result> {
     }
 
     public Retries<Result> orElse(Result value) {
-        options.defaultResult(new ConcreteOptional<Result>(value));
-        return this;
+        Options<Result> newOptions = options.defaultResult(new ConcreteOptional<Result>(value));
+        return new Retries<Result>(retryable, newOptions);
     }
 }
