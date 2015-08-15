@@ -1,19 +1,20 @@
 package me.alexpanov.retries;
 
+import com.google.common.base.Optional;
+
 final class RetryRuntime<Result> {
 
     private final Retryable<Result> retryable;
     private final Options<Result> options;
-    private final WorkHistory workHistory;
+    private final WorkHistory<Result> workHistory;
     private final Optional<Result> computedResult;
 
     RetryRuntime(Retryable<Result> retryable, Options<Result> options) {
-        this(retryable, options, new WorkHistory(), new MissingOptional<Result>());
+        this(retryable, options, new WorkHistory<Result>(), Optional.<Result>absent());
     }
 
     private RetryRuntime(Retryable<Result> retryable,
-                         Options<Result> options,
-                         WorkHistory workHistory,
+                         Options<Result> options, WorkHistory<Result> workHistory,
                          Optional<Result> computedResult) {
         this.retryable = retryable;
         this.options = options;
@@ -22,27 +23,27 @@ final class RetryRuntime<Result> {
     }
 
     boolean hasWorkToDo() {
-        return !computedResult.isPresent() && !options.isSatisfiedBy(workHistory);
+        return !options.isSatisfiedBy(workHistory);
     }
 
     RetryRuntime<Result> performUnitOfWork() {
-        WorkHistory updatedWorkHistory = workHistory.incrementNumberOfTries();
         Optional<Result> computedResult = computeResult();
+        WorkHistory<Result> updatedWorkHistory = workHistory.tryEndedIn(computedResult);
         return new RetryRuntime<Result>(retryable, options, updatedWorkHistory, computedResult);
     }
 
     private Optional<Result> computeResult() {
         try {
-            return new ConcreteOptional<Result>(retryable.tryOnce());
+            return Optional.of(retryable.tryOnce());
         } catch (Exception e) {
-            return new MissingOptional<Result>();
+            return Optional.absent();
         }
     }
 
     Result workResult() {
         Optional<Result> workResult = computedResult.or(options.defaultResult());
         if (workResult.isPresent()) {
-            return workResult.value();
+            return workResult.get();
         }
         throw new FailedToComputeAValueException();
     }

@@ -1,5 +1,7 @@
 package me.alexpanov.retries;
 
+import com.google.common.base.Predicate;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,5 +72,21 @@ public class RetriesTest {
     @Test(expected = IllegalStateException.class)
     public void throwsOnTwoDefaultValues() throws Exception {
         retries.orElse(expectedResult).orElse("Hello");
+    }
+
+    @Test
+    public void ignoreResult() throws Exception {
+        when(retryable.tryOnce()).thenReturn(new Object()).thenReturn(expectedResult);
+        Object result = retries.ignoreIfResult(isNotExpectedResult()).perform();
+        assertThat(result).isEqualTo(expectedResult);
+    }
+
+    private Predicate<Object> isNotExpectedResult() {
+        return new Predicate<Object>() {
+            @Override
+            public boolean apply(Object input) {
+                return input != expectedResult;
+            }
+        };
     }
 }

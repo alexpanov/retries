@@ -1,5 +1,8 @@
 package me.alexpanov.retries;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+
 public final class Retries<Result> {
 
     private final Retryable<Result> retryable;
@@ -20,6 +23,11 @@ public final class Retries<Result> {
         return new Retries<Result>(retryable, newOptions);
     }
 
+    public Retries<Result> orElse(Result value) {
+        Options<Result> newOptions = options.defaultResult(Optional.of(value));
+        return new Retries<Result>(retryable, newOptions);
+    }
+
     public Result perform() throws FailedToComputeAValueException {
         RetryRuntime<Result> runtime = new RetryRuntime<Result>(retryable, options);
         while (runtime.hasWorkToDo()) {
@@ -28,8 +36,7 @@ public final class Retries<Result> {
         return runtime.workResult();
     }
 
-    public Retries<Result> orElse(Result value) {
-        Options<Result> newOptions = options.defaultResult(new ConcreteOptional<Result>(value));
-        return new Retries<Result>(retryable, newOptions);
+    public Retries<Result> ignoreIfResult(Predicate<? super Result> matches) {
+        return new Retries<Result>(retryable, options.ignoreIfResult(matches));
     }
 }
