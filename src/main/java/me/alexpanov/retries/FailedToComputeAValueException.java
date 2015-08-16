@@ -1,5 +1,5 @@
 package me.alexpanov.retries;
 
-public class FailedToComputeAValueException extends RuntimeException {
+class FailedToComputeAValueException extends RetryException {
 
 }

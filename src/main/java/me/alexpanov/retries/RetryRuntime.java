@@ -15,46 +15,50 @@ final class RetryRuntime<Result> {
     private final Optional<Result> defaultResult;
     private final Collection<FailureSubscriber> failureSubscribers;
     private final ContinueCriteria<Result> continueCriteria;
+    private final long timeout;
 
     RetryRuntime() {
-        this(Optional.<Result>absent(), Collections.<FailureSubscriber>emptyList(), new ContinueCriteria<Result>());
+        this(Optional.<Result>absent(), Collections.<FailureSubscriber>emptyList(), new ContinueCriteria<Result>(), 0L);
     }
 
     RetryRuntime(Optional<Result> defaultResult,
                  Collection<FailureSubscriber> failureSubscribers,
-                 ContinueCriteria<Result> continueCriteria) {
+                 ContinueCriteria<Result> continueCriteria,
+                 long timeout) {
         this.defaultResult = defaultResult;
         this.failureSubscribers = failureSubscribers;
         this.continueCriteria = continueCriteria;
+        this.timeout = timeout;
     }
 
     Result perform(Retryable<Result> retryable) {
-        return new ExecutionOfRetryable<Result>(retryable, defaultResult, failureSubscribers,
-                                                continueCriteria).perform();
+        return new ExecutionOfRetryable<Result>(retryable, defaultResult, failureSubscribers, continueCriteria, timeout)
+                .perform();
     }
 
     RetryRuntime<Result> defaultResult(Optional<Result> defaultResult) {
         checkArgument(defaultResult.isPresent(), "Default result must be present");
         checkState(!this.defaultResult.isPresent(), "Cannot specify two default results");
-        return new RetryRuntime<Result>(defaultResult, failureSubscribers, continueCriteria);
+        return new RetryRuntime<Result>(defaultResult, failureSubscribers, continueCriteria, timeout);
     }
 
     RetryRuntime<Result> maxRetries(int maxRetries) {
-        return new RetryRuntime<Result>(defaultResult, failureSubscribers, continueCriteria.maxRetries(maxRetries));
+        return new RetryRuntime<Result>(defaultResult, failureSubscribers, continueCriteria.maxRetries(maxRetries),
+                                        timeout);
     }
 
     RetryRuntime<Result> ignoreIfResult(Predicate<? super Result> ignoreRule) {
         return new RetryRuntime<Result>(defaultResult, failureSubscribers,
-                                        continueCriteria.withContinueOnResultRule(ignoreRule));
+                                        continueCriteria.withContinueOnResultRule(ignoreRule), timeout);
     }
 
     RetryRuntime<Result> onEachFailure(FailureSubscriber failureSubscriber) {
         Collection<FailureSubscriber> failureSubscribers = newLinkedList(this.failureSubscribers);
         failureSubscribers.add(failureSubscriber);
-        return new RetryRuntime<Result>(defaultResult, failureSubscribers, continueCriteria);
+        return new RetryRuntime<Result>(defaultResult, failureSubscribers, continueCriteria, timeout);
     }
 
     RetryRuntime<Result> waitAtLeast(long timeout) {
-        return new RetryRuntime<Result>(defaultResult, failureSubscribers, continueCriteria);
+        return new RetryRuntime<Result>(defaultResult, failureSubscribers, continueCriteria, timeout);
     }
 }

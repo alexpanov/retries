@@ -1,5 +1,7 @@
 package me.alexpanov.retries;
 
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 
@@ -17,16 +19,16 @@ public final class Retries<Result> {
         this.runtime = runtime;
     }
 
+    public Result perform() throws RetryException {
+        return runtime.perform(retryable);
+    }
+
     public Retries<Result> stopOnMaxFailures(int maxRetries) {
         return new Retries<Result>(retryable, runtime.maxRetries(maxRetries));
     }
 
     public Retries<Result> orElse(Result value) {
         return new Retries<Result>(retryable, runtime.defaultResult(Optional.of(value)));
-    }
-
-    public Result perform() throws FailedToComputeAValueException {
-        return runtime.perform(retryable);
     }
 
     public Retries<Result> ignoreIfResult(Predicate<? super Result> matches) {
@@ -37,7 +39,7 @@ public final class Retries<Result> {
         return new Retries<Result>(retryable, runtime.onEachFailure(failureSubscriber));
     }
 
-    public Retries<Result> waitAfterFailuresAtLeast(long timeout) {
-        return new Retries<Result>(retryable, runtime.waitAtLeast(timeout));
+    public Retries<Result> waitAfterFailuresAtLeast(int timeout, TimeUnit timeUnit) {
+        return new Retries<Result>(retryable, runtime.waitAtLeast(timeUnit.toMillis(timeout)));
     }
 }

@@ -2,11 +2,11 @@ package me.alexpanov.retries;
 
 import com.google.common.base.Predicate;
 
-final class Match<Type> implements Predicate<Predicate<Type>> {
+final class MatchedPredicate<Type> implements Predicate<Predicate<Type>> {
 
     private final Type value;
 
-    Match(Type value) {
+    MatchedPredicate(Type value) {
         this.value = value;
     }
 

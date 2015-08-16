@@ -39,7 +39,7 @@ final class ContinueCriteria<Result> {
 
     private boolean anyRuleMatches(final PerformedWork<Result> performedWork) {
         Optional<Predicate<PerformedWork<Result>>> aMatch =
-                FluentIterable.from(rules).firstMatch(new Match<PerformedWork<Result>>(performedWork));
+                FluentIterable.from(rules).firstMatch(new MatchedPredicate<PerformedWork<Result>>(performedWork));
         return aMatch.isPresent();
     }
 

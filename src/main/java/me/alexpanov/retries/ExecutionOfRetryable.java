@@ -10,16 +10,19 @@ final class ExecutionOfRetryable<Result> {
     private final Optional<Result> defaultResult;
     private final Collection<FailureSubscriber> failureSubscribers;
     private final ContinueCriteria<Result> continueCriteria;
+    private final long timeout;
 
     ExecutionOfRetryable(Retryable<Result> retryable,
                          Optional<Result> defaultResult,
                          Collection<FailureSubscriber> failureSubscribers,
-                         ContinueCriteria<Result> continueCriteria) {
+                         ContinueCriteria<Result> continueCriteria,
+                         long timeout) {
 
         this.retryable = retryable;
         this.defaultResult = defaultResult;
         this.failureSubscribers = failureSubscribers;
         this.continueCriteria = continueCriteria;
+        this.timeout = timeout;
     }
 
     Result perform() {
@@ -40,8 +43,13 @@ final class ExecutionOfRetryable<Result> {
             return Optional.of(retryable.tryOnce());
         } catch (Exception e) {
             notifyOfFailure();
+            waitForAtLeastSpecifiedName();
             return Optional.absent();
         }
+    }
+
+    private void waitForAtLeastSpecifiedName() {
+        new Wait(timeout).perform();
     }
 
     private void notifyOfFailure() {
