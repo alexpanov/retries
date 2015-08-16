@@ -2,13 +2,17 @@
 
 
 ```java
-Retryable<Object> retryable = new Retryable<Object>() {
-    @Override
-    public Object tryOnce() throws Exception {
-        return new Object();
-    }
-};
-
-Object result = new Retries<Object>(retryable).perform();
+Retryable<String> retryable = new Retryable<String>() {
+            @Override
+            public String tryOnce() throws Exception {
+                return "hello";
+            }
+        };
+String resultAfterRetries = new Retries<String>(retryable).stopOnMaxFailures(1)
+                                                          .waitAfterFailureAtLeast(10, TimeUnit.SECONDS)
+                                                          .onEachFailureDo(new LogTheError())
+                                                          .ignoreIfResult(new StartsWithLetterB())
+                                                          .orElse("default value")
+                                                          .perform();
 
 ```
