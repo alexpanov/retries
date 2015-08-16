@@ -8,15 +8,15 @@ import com.google.common.collect.Iterables;
 
 import static com.google.common.collect.Lists.newLinkedList;
 
-final class WorkHistory<Result> {
+final class PerformedWork<Result> {
 
     private final Collection<Optional<Result>> results;
 
-    WorkHistory() {
+    PerformedWork() {
         this(Collections.<Optional<Result>>emptyList());
     }
 
-    private WorkHistory(Collection<Optional<Result>> results) {
+    private PerformedWork(Collection<Optional<Result>> results) {
         this.results = results;
     }
 
@@ -24,10 +24,10 @@ final class WorkHistory<Result> {
         return results.size();
     }
 
-    public WorkHistory<Result> tryEndedIn(Optional<Result> result) {
+    public PerformedWork<Result> tryEndedIn(Optional<Result> result) {
         Collection<Optional<Result>> newResults = newLinkedList(results);
         newResults.add(result);
-        return new WorkHistory<Result>(newResults);
+        return new PerformedWork<Result>(newResults);
     }
 
     public Optional<Result> lastResult() {

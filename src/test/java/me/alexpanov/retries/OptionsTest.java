@@ -10,36 +10,36 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class OptionsTest {
 
-    private final WorkHistory<String> emptyWorkHistory = new WorkHistory<String>();
+    private final PerformedWork<String> emptyPerformedWork = new PerformedWork<String>();
 
     private Options<String> options = new Options<String>();
 
     @Test
     public void defaultNumberOfRetriesIsTwo() throws Exception {
-        WorkHistory<String> oneTry = emptyWorkHistory.tryEndedIn(Optional.<String>absent());
+        PerformedWork<String> oneTry = emptyPerformedWork.tryEndedIn(Optional.<String>absent());
         assertThat(options.isSatisfiedBy(oneTry)).isFalse();
-        WorkHistory<String> twoTries = oneTry.tryEndedIn(Optional.<String>absent());
+        PerformedWork<String> twoTries = oneTry.tryEndedIn(Optional.<String>absent());
         assertThat(options.isSatisfiedBy(twoTries)).isTrue();
     }
 
     @Test
     public void usesPredicateToDetermineSatisfiedResult() throws Exception {
         Options<String> options = this.options.ignoreIfResult(isEmpty());
-        WorkHistory<String> historyWithEmptyLastResult = emptyWorkHistory.tryEndedIn(Optional.of(" "));
+        PerformedWork<String> historyWithEmptyLastResult = emptyPerformedWork.tryEndedIn(Optional.of(" "));
         assertThat(options.isSatisfiedBy(historyWithEmptyLastResult)).isFalse();
     }
 
     @Test
     public void resultSatisfiesPredicate() throws Exception {
         Options<String> options = this.options.ignoreIfResult(isEmpty());
-        WorkHistory<String> historyWithNonEmptyLastResult = emptyWorkHistory.tryEndedIn(Optional.of("a"));
+        PerformedWork<String> historyWithNonEmptyLastResult = emptyPerformedWork.tryEndedIn(Optional.of("a"));
         assertThat(options.isSatisfiedBy(historyWithNonEmptyLastResult)).isTrue();
     }
 
     @Test
     public void multiplePredicatesAreUsed() throws Exception {
         Options<String> options = this.options.ignoreIfResult(isEmpty()).ignoreIfResult(startsWith("a"));
-        WorkHistory<String> historyWithEmptyLastResult = emptyWorkHistory.tryEndedIn(Optional.of("a"));
+        PerformedWork<String> historyWithEmptyLastResult = emptyPerformedWork.tryEndedIn(Optional.of("a"));
         assertThat(options.isSatisfiedBy(historyWithEmptyLastResult)).isFalse();
     }
 

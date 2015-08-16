@@ -29,11 +29,7 @@ public final class Retries<Result> {
     }
 
     public Result perform() throws FailedToComputeAValueException {
-        RetryRuntime<Result> runtime = new RetryRuntime<Result>(retryable, options);
-        while (runtime.hasWorkToDo()) {
-            runtime = runtime.performUnitOfWork();
-        }
-        return runtime.workResult();
+        return new RetryRuntime<Result>(retryable, options).perform();
     }
 
     public Retries<Result> ignoreIfResult(Predicate<? super Result> matches) {
