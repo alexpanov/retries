@@ -101,7 +101,7 @@ public class RetriesTest {
     public void onEachFailureIsNotUsedOnSuccesses() throws Exception {
         when(retryable.tryOnce()).thenReturn(expectedResult);
         FailureSubscriber failureSubscriber = mock(FailureSubscriber.class);
-        retries.onEachFailure(failureSubscriber).perform();
+        retries.onEachFailureDo(failureSubscriber).perform();
         verify(failureSubscriber, never()).handle();
     }
 
@@ -109,7 +109,7 @@ public class RetriesTest {
     public void onEachFailureIsUsedOnFailures() throws Exception {
         when(retryable.tryOnce()).thenReturn(null).thenReturn(expectedResult);
         FailureSubscriber failureSubscriber = mock(FailureSubscriber.class);
-        retries.onEachFailure(failureSubscriber).perform();
+        retries.onEachFailureDo(failureSubscriber).perform();
         verify(failureSubscriber).handle();
     }
 
@@ -118,7 +118,7 @@ public class RetriesTest {
         when(retryable.tryOnce()).thenReturn(null).thenReturn(expectedResult);
         FailureSubscriber firstSubscriber = mock(FailureSubscriber.class);
         FailureSubscriber secondSubscriber = mock(FailureSubscriber.class);
-        retries.onEachFailure(firstSubscriber).onEachFailure(secondSubscriber).perform();
+        retries.onEachFailureDo(firstSubscriber).onEachFailureDo(secondSubscriber).perform();
         verify(firstSubscriber).handle();
         verify(secondSubscriber).handle();
     }

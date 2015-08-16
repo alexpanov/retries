@@ -35,11 +35,11 @@ public final class Retries<Result> {
         return new Retries<Result>(retryable, runtime.ignoreIfResult(matches));
     }
 
-    public Retries<Result> onEachFailure(FailureSubscriber failureSubscriber) {
+    public Retries<Result> onEachFailureDo(FailureSubscriber failureSubscriber) {
         return new Retries<Result>(retryable, runtime.onEachFailure(failureSubscriber));
     }
 
-    public Retries<Result> waitAfterFailuresAtLeast(int timeout, TimeUnit timeUnit) {
+    public Retries<Result> waitAfterFailureAtLeast(int timeout, TimeUnit timeUnit) {
         return new Retries<Result>(retryable, runtime.waitAtLeast(timeUnit.toMillis(timeout)));
     }
 }

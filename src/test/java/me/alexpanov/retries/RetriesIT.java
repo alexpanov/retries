@@ -24,7 +24,7 @@ public class RetriesIT {
     public void sleepsAtLeastTheSpecifiedAmountOfTime() throws Exception {
         Stopwatch stopwatch = Stopwatch.createStarted();
         new Retries<String>(failTillLastTry()).stopOnMaxFailures(maxRetries)
-                                              .waitAfterFailuresAtLeast(sleepTimeout, TimeUnit.MILLISECONDS)
+                                              .waitAfterFailureAtLeast(sleepTimeout, TimeUnit.MILLISECONDS)
                                               .perform();
         assertThat(stopwatch.stop().elapsed(TimeUnit.MILLISECONDS)).isGreaterThanOrEqualTo(sleepTimeout * maxRetries);
     }
