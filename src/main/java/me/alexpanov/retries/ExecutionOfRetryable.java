@@ -7,48 +7,51 @@ import com.google.common.base.Optional;
 final class ExecutionOfRetryable<Result> {
 
     private final Retryable<Result> retryable;
-    private final Options<Result> options;
-    private final PerformedWork<Result> performedWork;
-    private final Optional<Result> computedResult;
-
-    ExecutionOfRetryable(Retryable<Result> retryable, Options<Result> options) {
-        this(retryable, options, new PerformedWork<Result>(), Optional.<Result>absent());
-    }
+    private final Optional<Result> defaultResult;
+    private final Collection<FailureSubscriber> failureSubscribers;
+    private final ContinueCriteria<Result> continueCriteria;
 
     ExecutionOfRetryable(Retryable<Result> retryable,
-                         Options<Result> options,
-                         PerformedWork<Result> performedWork,
-                         Optional<Result> computedResult) {
+                         Optional<Result> defaultResult,
+                         Collection<FailureSubscriber> failureSubscribers,
+                         ContinueCriteria<Result> continueCriteria) {
+
         this.retryable = retryable;
-        this.options = options;
-        this.performedWork = performedWork;
-        this.computedResult = computedResult;
+        this.defaultResult = defaultResult;
+        this.failureSubscribers = failureSubscribers;
+        this.continueCriteria = continueCriteria;
     }
 
-    boolean hasWorkToDo() {
-        return !options.isSatisfiedBy(performedWork);
+    public Result perform() {
+        PerformedWork<Result> performedWork = new PerformedWork<Result>();
+        while (hasWorkToDo(performedWork)) {
+            Optional<Result> currentResult = performUnitOfWork();
+            performedWork = performedWork.tryEndedIn(currentResult);
+        }
+        return workResult(performedWork);
     }
 
-    ExecutionOfRetryable<Result> performUnitOfWork() {
-        Optional<Result> computedResult = computeResult();
-        PerformedWork<Result> updatedPerformedWork = performedWork.tryEndedIn(computedResult);
-        return new ExecutionOfRetryable<Result>(retryable, options, updatedPerformedWork, computedResult);
+    private boolean hasWorkToDo(PerformedWork<Result> performedWork) {
+        return continueCriteria.shouldBeContinuedAfter(performedWork);
     }
 
-    private Optional<Result> computeResult() {
+    private Optional<Result> performUnitOfWork() {
         try {
             return Optional.of(retryable.tryOnce());
         } catch (Exception e) {
-            Collection<FailureSubscriber> failureSubscribers = options.failureSubscribers();
-            for (FailureSubscriber failureSubscriber : failureSubscribers) {
-                failureSubscriber.handle();
-            }
+            notifyOfFailure();
             return Optional.absent();
         }
     }
 
-    Result workResult() {
-        Optional<Result> workResult = computedResult.or(options.defaultResult());
+    private void notifyOfFailure() {
+        for (FailureSubscriber failureSubscriber : failureSubscribers) {
+            failureSubscriber.handle();
+        }
+    }
+
+    private Result workResult(PerformedWork<Result> performedWork) {
+        Optional<Result> workResult = performedWork.lastResult().or(defaultResult);
         if (workResult.isPresent()) {
             return workResult.get();
         }
