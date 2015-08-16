@@ -20,17 +20,17 @@ final class PerformedWork<Result> {
         this.results = results;
     }
 
-    public int numberOfTries() {
+    int numberOfTries() {
         return results.size();
     }
 
-    public PerformedWork<Result> tryEndedIn(Optional<Result> result) {
+    PerformedWork<Result> tryEndedIn(Optional<Result> result) {
         Collection<Optional<Result>> newResults = newLinkedList(results);
         newResults.add(result);
         return new PerformedWork<Result>(newResults);
     }
 
-    public Optional<Result> lastResult() {
+    Optional<Result> lastResult() {
         return Iterables.getLast(results, Optional.<Result>absent());
     }
 }

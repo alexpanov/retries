@@ -30,7 +30,7 @@ final class ContinueCriteria<Result> {
         return new ContinueCriteria<Result>(maxRetries, newRules);
     }
 
-    public boolean shouldBeContinuedAfter(final PerformedWork<Result> performedWork) {
+    boolean shouldBeContinuedAfter(final PerformedWork<Result> performedWork) {
         if (performedWork.numberOfTries() >= maxRetries) {
             return false;
         }
@@ -58,7 +58,7 @@ final class ContinueCriteria<Result> {
         };
     }
 
-    public ContinueCriteria<Result> maxRetries(int maxRetries) {
+    ContinueCriteria<Result> maxRetries(int maxRetries) {
         return new ContinueCriteria<Result>(maxRetries, rules);
     }
 }

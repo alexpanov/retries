@@ -16,7 +16,7 @@ final class RetryRuntime<Result> {
     private final Collection<FailureSubscriber> failureSubscribers;
     private final ContinueCriteria<Result> continueCriteria;
 
-    public RetryRuntime() {
+    RetryRuntime() {
         this(Optional.<Result>absent(), Collections.<FailureSubscriber>emptyList(), new ContinueCriteria<Result>());
     }
 
@@ -28,33 +28,33 @@ final class RetryRuntime<Result> {
         this.continueCriteria = continueCriteria;
     }
 
-    public Result perform(Retryable<Result> retryable) {
+    Result perform(Retryable<Result> retryable) {
         return new ExecutionOfRetryable<Result>(retryable, defaultResult, failureSubscribers,
                                                 continueCriteria).perform();
     }
 
-    public RetryRuntime<Result> defaultResult(Optional<Result> defaultResult) {
+    RetryRuntime<Result> defaultResult(Optional<Result> defaultResult) {
         checkArgument(defaultResult.isPresent(), "Default result must be present");
         checkState(!this.defaultResult.isPresent(), "Cannot specify two default results");
         return new RetryRuntime<Result>(defaultResult, failureSubscribers, continueCriteria);
     }
 
-    public RetryRuntime<Result> maxRetries(int maxRetries) {
+    RetryRuntime<Result> maxRetries(int maxRetries) {
         return new RetryRuntime<Result>(defaultResult, failureSubscribers, continueCriteria.maxRetries(maxRetries));
     }
 
-    public RetryRuntime<Result> ignoreIfResult(Predicate<? super Result> ignoreRule) {
+    RetryRuntime<Result> ignoreIfResult(Predicate<? super Result> ignoreRule) {
         return new RetryRuntime<Result>(defaultResult, failureSubscribers,
                                         continueCriteria.withContinueOnResultRule(ignoreRule));
     }
 
-    public RetryRuntime<Result> onEachFailure(FailureSubscriber failureSubscriber) {
+    RetryRuntime<Result> onEachFailure(FailureSubscriber failureSubscriber) {
         Collection<FailureSubscriber> failureSubscribers = newLinkedList(this.failureSubscribers);
         failureSubscribers.add(failureSubscriber);
         return new RetryRuntime<Result>(defaultResult, failureSubscribers, continueCriteria);
     }
 
-    public RetryRuntime<Result> waitAtLeast(long timeout) {
+    RetryRuntime<Result> waitAtLeast(long timeout) {
         return new RetryRuntime<Result>(defaultResult, failureSubscribers, continueCriteria);
     }
 }

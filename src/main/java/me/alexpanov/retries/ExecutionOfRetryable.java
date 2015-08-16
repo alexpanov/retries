@@ -22,7 +22,7 @@ final class ExecutionOfRetryable<Result> {
         this.continueCriteria = continueCriteria;
     }
 
-    public Result perform() {
+    Result perform() {
         PerformedWork<Result> performedWork = new PerformedWork<Result>();
         while (hasWorkToDo(performedWork)) {
             Optional<Result> currentResult = performUnitOfWork();
