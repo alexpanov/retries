@@ -1,36 +1,30 @@
 package me.alexpanov.retries;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import com.google.common.base.Optional;
-import com.google.common.collect.Iterables;
-
-import static com.google.common.collect.Lists.newLinkedList;
 
 final class PerformedWork<Result> {
 
-    private final Collection<Optional<Result>> results;
+    private final int numberOfTries;
+    private final Optional<Result> lastResult;
 
     PerformedWork() {
-        this(Collections.<Optional<Result>>emptyList());
+        this(Optional.<Result>absent(), 0);
     }
 
-    private PerformedWork(Collection<Optional<Result>> results) {
-        this.results = results;
+    private PerformedWork(Optional<Result> lastResult, int numberOfTries) {
+        this.lastResult = lastResult;
+        this.numberOfTries = numberOfTries;
     }
 
     int numberOfTries() {
-        return results.size();
+        return numberOfTries;
     }
 
     PerformedWork<Result> tryEndedIn(Optional<Result> result) {
-        Collection<Optional<Result>> newResults = newLinkedList(results);
-        newResults.add(result);
-        return new PerformedWork<Result>(newResults);
+        return new PerformedWork<Result>(result, numberOfTries + 1);
     }
 
     Optional<Result> lastResult() {
-        return Iterables.getLast(results, Optional.<Result>absent());
+        return lastResult;
     }
 }
