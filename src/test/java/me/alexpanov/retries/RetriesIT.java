@@ -19,7 +19,7 @@ public class RetriesIT {
     private int maxRetries = random.nextInt(10) + 10;
 
     @Rule
-    public Timeout timeout = Timeout.seconds(5);
+    public Timeout timeout = Timeout.seconds(10);
 
     @Test
     public void sleepsAtLeastTheSpecifiedAmountOfTime() throws Exception {

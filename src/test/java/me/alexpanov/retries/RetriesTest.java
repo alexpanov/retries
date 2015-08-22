@@ -29,7 +29,7 @@ public class RetriesTest {
     private String expectedResult = new RandomStrings().createOne();
 
     @Rule
-    public Timeout timeout = Timeout.seconds(1);
+    public Timeout timeout = Timeout.seconds(5);
 
     @Before
     public void createRetries() throws Exception {
