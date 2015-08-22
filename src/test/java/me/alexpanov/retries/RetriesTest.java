@@ -1,6 +1,7 @@
 package me.alexpanov.retries;
 
 import com.google.common.base.Predicate;
+import com.google.common.testing.NullPointerTester;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -121,5 +122,15 @@ public class RetriesTest {
         retries.onEachFailureDo(firstSubscriber).onEachFailureDo(secondSubscriber).perform();
         verify(firstSubscriber).handle();
         verify(secondSubscriber).handle();
+    }
+
+    @Test
+    public void publicMethodsThrowOnNull() throws Exception {
+        new NullPointerTester().testAllPublicInstanceMethods(retries);
+    }
+
+    @Test
+    public void publicConstructorsThrowOnNull() throws Exception {
+        new NullPointerTester().testAllPublicConstructors(Retries.class);
     }
 }
