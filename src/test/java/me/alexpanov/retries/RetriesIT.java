@@ -15,8 +15,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RetriesIT {
 
     private Random random = new Random();
-    private int sleepTimeout = random.nextInt(10) + 5;
-    private int maxRetries = random.nextInt(10) + 5;
+    private int sleepTimeout = random.nextInt(10) + 10;
+    private int maxRetries = random.nextInt(10) + 10;
 
     @Rule
     public Timeout timeout = Timeout.seconds(10);
@@ -27,7 +27,11 @@ public class RetriesIT {
         new Retries<String>(failTillLastTry()).stopOnMaxFailures(maxRetries)
                                               .waitAfterFailureAtLeast(sleepTimeout, MILLISECONDS)
                                               .perform();
-        assertThat(stopwatch.stop().elapsed(MILLISECONDS)).isGreaterThanOrEqualTo(sleepTimeout * maxRetries);
+        assertThat(stopwatch.stop().elapsed(MILLISECONDS)).isGreaterThanOrEqualTo(expectedSleepTime());
+    }
+
+    private long expectedSleepTime() {
+        return sleepTimeout * maxRetries / 2;
     }
 
     private Retryable<String> failTillLastTry() {
@@ -54,7 +58,7 @@ public class RetriesIT {
                                                                                                       MILLISECONDS);
         Stopwatch stopwatch = Stopwatch.createStarted();
         retries.perform();
-        assertThat(stopwatch.stop().elapsed(MILLISECONDS)).isGreaterThanOrEqualTo(sleepTimeout * maxRetries);
+        assertThat(stopwatch.stop().elapsed(MILLISECONDS)).isGreaterThanOrEqualTo(expectedSleepTime());
     }
 
     private Retryable<String> alwaysReturn(final String dumbData) {
