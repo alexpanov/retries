@@ -15,7 +15,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RetriesIT {
 
     private Random random = new Random();
-    private int sleepTimeout = random.nextInt(10) + 10;
+    private int sleepTimeout = random.nextInt(10) + 20;
     private int maxRetries = random.nextInt(10) + 10;
 
     @Rule
