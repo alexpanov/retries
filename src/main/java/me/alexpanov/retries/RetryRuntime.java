@@ -59,6 +59,7 @@ final class RetryRuntime<Result> {
     }
 
     RetryRuntime<Result> waitAtLeast(long timeout) {
+        checkArgument(timeout >= 0);
         return new RetryRuntime<Result>(defaultResult, failureSubscribers, continueCriteria, timeout);
     }
 }

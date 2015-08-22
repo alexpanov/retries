@@ -22,4 +22,9 @@ public class RetryRuntimeTest {
     public void canSpecifyOneDefaultResult() throws Exception {
         retryRuntime.defaultResult(Optional.of("hello"));
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void timeoutShouldNotBeNegative() throws Exception {
+        retryRuntime.waitAtLeast(-1);
+    }
 }
