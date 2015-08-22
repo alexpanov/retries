@@ -15,8 +15,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RetriesIT {
 
     private Random random = new Random();
-    private int sleepTimeout = random.nextInt(10) + 20;
-    private int maxRetries = random.nextInt(10) + 10;
+    private int sleepTimeout = random.nextInt(10) + 5;
+    private int maxRetries = random.nextInt(10) + 5;
 
     @Rule
     public Timeout timeout = Timeout.seconds(10);
@@ -28,7 +28,11 @@ public class RetriesIT {
                                                                                                  MILLISECONDS);
         Stopwatch stopwatch = Stopwatch.createStarted();
         retries.perform();
-        assertThat(stopwatch.stop().elapsed(MILLISECONDS)).isGreaterThanOrEqualTo(sleepTimeout * maxRetries);
+        long elapsed = stopwatch.stop().elapsed(MILLISECONDS);
+        int other = sleepTimeout * maxRetries;
+        System.out.println(elapsed);
+        System.out.println(other);
+        assertThat(elapsed).isGreaterThanOrEqualTo(other);
     }
 
     private Retryable<String> failTillLastTry() {
@@ -41,6 +45,8 @@ public class RetriesIT {
                 if (timesCalled < maxRetries) {
                     throw new IllegalStateException();
                 }
+                System.out.println(sleepTimeout);
+                System.out.println(maxRetries);
                 return "Done";
             }
         };
@@ -48,16 +54,14 @@ public class RetriesIT {
 
     @Test
     public void shouldWaitAfterResultNotMatched() throws Exception {
-        int numberOfRetries = 100;
-        int timeout = 2;
         String dumbData = "hello";
-        Retries<String> retries = new Retries<String>(alwaysReturn(dumbData)).stopOnMaxFailures(numberOfRetries)
+        Retries<String> retries = new Retries<String>(alwaysReturn(dumbData)).stopOnMaxFailures(maxRetries)
                                                                              .ignoreIfResult(containsPattern(dumbData))
-                                                                             .waitAfterFailureAtLeast(timeout,
+                                                                             .waitAfterFailureAtLeast(sleepTimeout,
                                                                                                       MILLISECONDS);
         Stopwatch stopwatch = Stopwatch.createStarted();
         retries.perform();
-        assertThat(stopwatch.stop().elapsed(MILLISECONDS)).isGreaterThanOrEqualTo(numberOfRetries * timeout);
+        assertThat(stopwatch.stop().elapsed(MILLISECONDS)).isGreaterThanOrEqualTo(sleepTimeout * maxRetries);
     }
 
     private Retryable<String> alwaysReturn(final String dumbData) {
