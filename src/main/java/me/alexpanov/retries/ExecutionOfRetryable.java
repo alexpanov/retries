@@ -27,35 +27,29 @@ final class ExecutionOfRetryable<Result> {
 
     Result perform() {
         PerformedWork<Result> performedWork = new PerformedWork<Result>();
-        while (hasWorkToDo(performedWork)) {
-            Optional<Result> currentResult = performUnitOfWork();
-            performedWork = performedWork.tryEndedIn(currentResult);
+        return computeResult(performedWork);
+    }
+
+    private Result computeResult(PerformedWork<Result> performedWork) {
+        Optional<Result> result = obtainResultOfOneTry();
+        PerformedWork<Result> workAfterCurrentTry = performedWork.tryEndedIn(result);
+        if (willSuffice(workAfterCurrentTry)) {
+            return workResult(workAfterCurrentTry);
         }
-        return workResult(performedWork);
+        handleFailure();
+        return computeResult(workAfterCurrentTry);
     }
 
-    private boolean hasWorkToDo(PerformedWork<Result> performedWork) {
-        return continueCriteria.shouldBeContinuedAfter(performedWork);
-    }
-
-    private Optional<Result> performUnitOfWork() {
+    private Optional<Result> obtainResultOfOneTry() {
         try {
-            return Optional.of(retryable.tryOnce());
+            return Optional.fromNullable(retryable.tryOnce());
         } catch (Exception e) {
-            notifyOfFailure();
-            waitForAtLeastSpecifiedName();
             return Optional.absent();
         }
     }
 
-    private void waitForAtLeastSpecifiedName() {
-        new Wait(timeout).perform();
-    }
-
-    private void notifyOfFailure() {
-        for (FailureSubscriber failureSubscriber : failureSubscribers) {
-            failureSubscriber.handle();
-        }
+    private boolean willSuffice(PerformedWork<Result> performedWork) {
+        return !continueCriteria.shouldBeContinuedAfter(performedWork);
     }
 
     private Result workResult(PerformedWork<Result> performedWork) {
@@ -64,5 +58,20 @@ final class ExecutionOfRetryable<Result> {
             return workResult.get();
         }
         throw new FailedToComputeAValueException();
+    }
+
+    private void handleFailure() {
+        notifyOfFailure();
+        waitForAtLeastSpecifiedTime();
+    }
+
+    private void notifyOfFailure() {
+        for (FailureSubscriber failureSubscriber : failureSubscribers) {
+            failureSubscriber.handle();
+        }
+    }
+
+    private void waitForAtLeastSpecifiedTime() {
+        new Wait(timeout).perform();
     }
 }
