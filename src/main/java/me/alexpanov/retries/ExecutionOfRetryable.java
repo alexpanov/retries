@@ -66,8 +66,9 @@ final class ExecutionOfRetryable<Result> {
     }
 
     private void notifyOfFailure() {
+        RetryFailure retryFailure = new RetryFailures.Empty();
         for (FailureSubscriber failureSubscriber : failureSubscribers) {
-            failureSubscriber.handle();
+            failureSubscriber.onFailure(retryFailure);
         }
     }
 

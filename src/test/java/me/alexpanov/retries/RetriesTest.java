@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -103,7 +104,7 @@ public class RetriesTest {
         when(retryable.tryOnce()).thenReturn(expectedResult);
         FailureSubscriber failureSubscriber = mock(FailureSubscriber.class);
         retries.onEachFailureDo(failureSubscriber).perform();
-        verify(failureSubscriber, never()).handle();
+        verify(failureSubscriber, never()).onFailure(any(RetryFailure.class));
     }
 
     @Test
@@ -111,7 +112,7 @@ public class RetriesTest {
         when(retryable.tryOnce()).thenReturn(null).thenReturn(expectedResult);
         FailureSubscriber failureSubscriber = mock(FailureSubscriber.class);
         retries.onEachFailureDo(failureSubscriber).perform();
-        verify(failureSubscriber).handle();
+        verify(failureSubscriber).onFailure(any(RetryFailure.class));
     }
 
     @Test
@@ -120,8 +121,8 @@ public class RetriesTest {
         FailureSubscriber firstSubscriber = mock(FailureSubscriber.class);
         FailureSubscriber secondSubscriber = mock(FailureSubscriber.class);
         retries.onEachFailureDo(firstSubscriber).onEachFailureDo(secondSubscriber).perform();
-        verify(firstSubscriber).handle();
-        verify(secondSubscriber).handle();
+        verify(firstSubscriber).onFailure(any(RetryFailure.class));
+        verify(secondSubscriber).onFailure(any(RetryFailure.class));
     }
 
     @Test
