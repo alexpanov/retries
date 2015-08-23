@@ -6,7 +6,7 @@
 
     <groupId>me.alexpanov</groupId>
     <artifactId>retries</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
 
     <name>Retries</name>
     <description>A library for retrying calls</description>
