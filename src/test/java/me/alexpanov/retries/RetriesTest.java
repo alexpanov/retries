@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -30,7 +31,7 @@ public class RetriesTest {
     private String expectedResult = new RandomStrings().createOne();
 
     @Rule
-    public Timeout timeout = Timeout.seconds(5);
+    public Timeout timeout = new Timeout(5, SECONDS);
 
     @Before
     public void createRetries() throws Exception {

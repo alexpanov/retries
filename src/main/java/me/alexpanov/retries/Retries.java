@@ -20,6 +20,11 @@ public final class Retries<Result> {
     private final Retryable<Result> retryable;
     private final RetryRuntime<Result> runtime;
 
+    /**
+     * Main constructor
+     *
+     * @param retryable to execute
+     */
     public Retries(Retryable<Result> retryable) {
         this(retryable, new RetryRuntime<Result>());
     }
