@@ -14,12 +14,12 @@ Add **retries** to your dependencies. Note that *Guava is automatically added to
 <dependency>
     <groupId>me.alexpanov</groupId>
     <artifactId>retries</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
 </dependency>
 ```
 ###Gradle:
 ```groovy
-compile "me.alexpanov:retries:0.0.1"
+compile "me.alexpanov:retries:0.0.2"
 ```
 
 ##Getting started
