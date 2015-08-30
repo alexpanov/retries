@@ -30,14 +30,14 @@ final class ContinueCriteria<Result> {
         return new ContinueCriteria<Result>(maxRetries, newRules);
     }
 
-    boolean shouldBeContinuedAfter(final PerformedWork<Result> performedWork) {
+    boolean shouldBeContinuedAfter(PerformedWork<Result> performedWork) {
         if (performedWork.numberOfTries() >= maxRetries) {
             return false;
         }
         return anyRuleMatches(performedWork);
     }
 
-    private boolean anyRuleMatches(final PerformedWork<Result> performedWork) {
+    private boolean anyRuleMatches(PerformedWork<Result> performedWork) {
         Optional<Predicate<PerformedWork<Result>>> aMatch =
                 FluentIterable.from(rules).firstMatch(new MatchedPredicate<PerformedWork<Result>>(performedWork));
         return aMatch.isPresent();

@@ -103,7 +103,7 @@ public class RetriesTest {
     @Test
     public void onEachFailureIsNotUsedOnSuccesses() throws Exception {
         when(retryable.tryOnce()).thenReturn(expectedResult);
-        FailureSubscriber failureSubscriber = mock(FailureSubscriber.class);
+        FailureSubscriber<Object> failureSubscriber = mock(FailureSubscriber.class);
         retries.onEachFailureDo(failureSubscriber).perform();
         verify(failureSubscriber, never()).onFailure(any(RetryFailure.class));
     }
@@ -111,7 +111,7 @@ public class RetriesTest {
     @Test
     public void onEachFailureIsUsedOnFailures() throws Exception {
         when(retryable.tryOnce()).thenReturn(null).thenReturn(expectedResult);
-        FailureSubscriber failureSubscriber = mock(FailureSubscriber.class);
+        FailureSubscriber<Object> failureSubscriber = mock(FailureSubscriber.class);
         retries.onEachFailureDo(failureSubscriber).perform();
         verify(failureSubscriber).onFailure(any(RetryFailure.class));
     }
@@ -119,8 +119,8 @@ public class RetriesTest {
     @Test
     public void onEachFailureSupportsTwoHooks() throws Exception {
         when(retryable.tryOnce()).thenReturn(null).thenReturn(expectedResult);
-        FailureSubscriber firstSubscriber = mock(FailureSubscriber.class);
-        FailureSubscriber secondSubscriber = mock(FailureSubscriber.class);
+        FailureSubscriber<Object> firstSubscriber = mock(FailureSubscriber.class);
+        FailureSubscriber<Object> secondSubscriber = mock(FailureSubscriber.class);
         retries.onEachFailureDo(firstSubscriber).onEachFailureDo(secondSubscriber).perform();
         verify(firstSubscriber).onFailure(any(RetryFailure.class));
         verify(secondSubscriber).onFailure(any(RetryFailure.class));

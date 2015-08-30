@@ -5,6 +5,6 @@ package me.alexpanov.retries;
  *
  * @since 0.0.1
  */
-public interface RetryFailure {
+public interface RetryFailure<Result> {
 
 }

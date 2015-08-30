@@ -64,7 +64,7 @@ public final class Retries<Result> {
     /**
      * Perform an arbitrary action after each failed repetition.
      */
-    public Retries<Result> onEachFailureDo(FailureSubscriber failureSubscriber) {
+    public Retries<Result> onEachFailureDo(FailureSubscriber<Result> failureSubscriber) {
         checkNotNull(failureSubscriber);
         return new Retries<Result>(retryable, runtime.onEachFailure(failureSubscriber));
     }

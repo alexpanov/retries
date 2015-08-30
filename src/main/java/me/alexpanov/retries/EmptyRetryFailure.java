@@ -1,5 +1,5 @@
 package me.alexpanov.retries;
 
-final class EmptyRetryFailure implements RetryFailure {
+final class EmptyRetryFailure<Result> implements RetryFailure<Result> {
 
 }

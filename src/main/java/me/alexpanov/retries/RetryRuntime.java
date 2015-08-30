@@ -13,16 +13,16 @@ import static com.google.common.collect.Lists.newLinkedList;
 final class RetryRuntime<Result> {
 
     private final Optional<Result> defaultResult;
-    private final Collection<FailureSubscriber> failureSubscribers;
+    private final Collection<FailureSubscriber<Result>> failureSubscribers;
     private final ContinueCriteria<Result> continueCriteria;
     private final long timeout;
 
     RetryRuntime() {
-        this(Optional.<Result>absent(), Collections.<FailureSubscriber>emptyList(), new ContinueCriteria<Result>(), 0L);
+        this(Optional.<Result>absent(), Collections.<FailureSubscriber<Result>>emptyList(),
+             new ContinueCriteria<Result>(), 0L);
     }
 
-    RetryRuntime(Optional<Result> defaultResult,
-                 Collection<FailureSubscriber> failureSubscribers,
+    RetryRuntime(Optional<Result> defaultResult, Collection<FailureSubscriber<Result>> failureSubscribers,
                  ContinueCriteria<Result> continueCriteria,
                  long timeout) {
         this.defaultResult = defaultResult;
@@ -52,8 +52,8 @@ final class RetryRuntime<Result> {
                                         continueCriteria.withContinueOnResultRule(ignoreRule), timeout);
     }
 
-    RetryRuntime<Result> onEachFailure(FailureSubscriber failureSubscriber) {
-        Collection<FailureSubscriber> failureSubscribers = newLinkedList(this.failureSubscribers);
+    RetryRuntime<Result> onEachFailure(FailureSubscriber<Result> failureSubscriber) {
+        Collection<FailureSubscriber<Result>> failureSubscribers = newLinkedList(this.failureSubscribers);
         failureSubscribers.add(failureSubscriber);
         return new RetryRuntime<Result>(defaultResult, failureSubscribers, continueCriteria, timeout);
     }

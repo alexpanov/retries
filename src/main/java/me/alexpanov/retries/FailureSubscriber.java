@@ -5,7 +5,7 @@ package me.alexpanov.retries;
  *
  * @since 0.0.1
  */
-public interface FailureSubscriber {
+public interface FailureSubscriber<Result> {
 
-    void onFailure(RetryFailure details);
+    void onFailure(RetryFailure<Result> details);
 }

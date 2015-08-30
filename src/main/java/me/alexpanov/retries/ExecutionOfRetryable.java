@@ -8,13 +8,13 @@ final class ExecutionOfRetryable<Result> {
 
     private final Retryable<Result> retryable;
     private final Optional<Result> defaultResult;
-    private final Collection<FailureSubscriber> failureSubscribers;
+    private final Collection<FailureSubscriber<Result>> failureSubscribers;
     private final ContinueCriteria<Result> continueCriteria;
     private final long timeout;
 
     ExecutionOfRetryable(Retryable<Result> retryable,
                          Optional<Result> defaultResult,
-                         Collection<FailureSubscriber> failureSubscribers,
+                         Collection<FailureSubscriber<Result>> failureSubscribers,
                          ContinueCriteria<Result> continueCriteria,
                          long timeout) {
 
@@ -66,8 +66,8 @@ final class ExecutionOfRetryable<Result> {
     }
 
     private void notifyOfFailure() {
-        RetryFailure retryFailure = new EmptyRetryFailure();
-        for (FailureSubscriber failureSubscriber : failureSubscribers) {
+        RetryFailure<Result> retryFailure = new EmptyRetryFailure<Result>();
+        for (FailureSubscriber<Result> failureSubscriber : failureSubscribers) {
             failureSubscriber.onFailure(retryFailure);
         }
     }
