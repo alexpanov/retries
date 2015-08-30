@@ -84,7 +84,13 @@ String resultAfterRetries = new Retries<String>(retryable).stopOnMaxFailures(10)
                                                           .perform();
 ```
 The code above will append a log message each time a call failed (exception, null or skipped result).
-                                                
+                    
+##But what about my Callable(s)!?
+I got you covered, man.
+```java
+Retryable<String> retryable = new CallableToRetryable<String>(yourCallable);
+```
+
 ##Licence
 [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
