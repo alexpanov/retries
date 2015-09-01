@@ -5,13 +5,15 @@ import com.google.common.base.Optional;
 final class PerformedWork<Result> {
 
     private final int numberOfTries;
+    private final StopCriteria<Result> stopCriteria;
     private final Optional<Result> lastResult;
 
-    PerformedWork() {
-        this(Optional.<Result>absent(), 0);
+    public PerformedWork(StopCriteria<Result> stopCriteria) {
+        this(stopCriteria, Optional.<Result>absent(), 0);
     }
 
-    private PerformedWork(Optional<Result> lastResult, int numberOfTries) {
+    private PerformedWork(StopCriteria<Result> stopCriteria, Optional<Result> lastResult, int numberOfTries) {
+        this.stopCriteria = stopCriteria;
         this.lastResult = lastResult;
         this.numberOfTries = numberOfTries;
     }
@@ -21,10 +23,21 @@ final class PerformedWork<Result> {
     }
 
     PerformedWork<Result> tryEndedIn(Optional<Result> result) {
-        return new PerformedWork<Result>(result, numberOfTries + 1);
+        return new PerformedWork<Result>(stopCriteria, result, numberOfTries + 1);
     }
 
     Optional<Result> lastResult() {
         return lastResult;
+    }
+
+    boolean isDone() {
+        return !stopCriteria.shouldBeContinuedAfter(this);
+    }
+
+    Optional<Result> workResult() {
+        if (stopCriteria.anyRuleMatches(this)) {
+            return Optional.absent();
+        }
+        return lastResult();
     }
 }

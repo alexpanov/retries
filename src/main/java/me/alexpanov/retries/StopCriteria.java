@@ -9,25 +9,25 @@ import com.google.common.collect.FluentIterable;
 
 import static com.google.common.collect.Lists.newLinkedList;
 
-final class ContinueCriteria<Result> {
+final class StopCriteria<Result> {
 
     private final Deque<Predicate<PerformedWork<Result>>> rules;
 
     private final int maxRetries;
 
-    ContinueCriteria() {
+    StopCriteria() {
         this(2, Collections.<Predicate<PerformedWork<Result>>>singleton(new ResultNotPresentRule<Result>()));
     }
 
-    private ContinueCriteria(int maxRetries, Iterable<Predicate<PerformedWork<Result>>> rules) {
+    private StopCriteria(int maxRetries, Iterable<Predicate<PerformedWork<Result>>> rules) {
         this.maxRetries = maxRetries;
         this.rules = newLinkedList(rules);
     }
 
-    ContinueCriteria<Result> withContinueRule(Predicate<PerformedWork<Result>> rule) {
+    StopCriteria<Result> withContinueRule(Predicate<PerformedWork<Result>> rule) {
         Deque<Predicate<PerformedWork<Result>>> newRules = newLinkedList(rules);
         newRules.addFirst(rule);
-        return new ContinueCriteria<Result>(maxRetries, newRules);
+        return new StopCriteria<Result>(maxRetries, newRules);
     }
 
     boolean shouldBeContinuedAfter(PerformedWork<Result> performedWork) {
@@ -37,13 +37,13 @@ final class ContinueCriteria<Result> {
         return anyRuleMatches(performedWork);
     }
 
-    private boolean anyRuleMatches(PerformedWork<Result> performedWork) {
+    boolean anyRuleMatches(PerformedWork<Result> performedWork) {
         Optional<Predicate<PerformedWork<Result>>> aMatch =
                 FluentIterable.from(rules).firstMatch(new MatchedPredicate<PerformedWork<Result>>(performedWork));
         return aMatch.isPresent();
     }
 
-    ContinueCriteria<Result> withContinueOnResultRule(Predicate<? super Result> continueOnResultRule) {
+    StopCriteria<Result> withContinueOnResultRule(Predicate<? super Result> continueOnResultRule) {
         Predicate<PerformedWork<Result>> newRule = toPerformedWorkRule(continueOnResultRule);
         return withContinueRule(newRule);
     }
@@ -58,7 +58,7 @@ final class ContinueCriteria<Result> {
         };
     }
 
-    ContinueCriteria<Result> maxRetries(int maxRetries) {
-        return new ContinueCriteria<Result>(maxRetries, rules);
+    StopCriteria<Result> maxRetries(int maxRetries) {
+        return new StopCriteria<Result>(maxRetries, rules);
     }
 }

@@ -10,7 +10,7 @@ public class PerformedWorkTest {
 
     private final String lastResult = "ad";
 
-    private final PerformedWork<String> emptyPerformedWork = new PerformedWork<String>();
+    private final PerformedWork<String> emptyPerformedWork = new PerformedWork<String>(new StopCriteria<String>());
 
     @Test
     public void returnsLastResult() throws Exception {

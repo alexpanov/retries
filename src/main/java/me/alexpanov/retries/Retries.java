@@ -1,11 +1,15 @@
 package me.alexpanov.retries;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 /**
  * Allows specification of retry strategy to repeat calls to a function unless all of the conditions are met.
@@ -84,5 +88,21 @@ public final class Retries<Result> {
      */
     public Result perform() throws RetryException {
         return runtime.perform(retryable);
+    }
+
+    /**
+     * Carry out the retries in future.
+     *
+     * @throws RetryException if no satisfactory value was computed and no default value was provided.
+     */
+    public Future<Result> performInFuture() {
+        FutureTask<Result> task = new FutureTask<Result>(new Callable<Result>() {
+            @Override
+            public Result call() throws Exception {
+                return perform();
+            }
+        });
+        newSingleThreadExecutor().submit(task);
+        return task;
     }
 }

@@ -6,6 +6,7 @@ import com.google.common.testing.NullPointerTester;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -13,6 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.isA;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -32,6 +34,9 @@ public class RetriesTest {
 
     @Rule
     public Timeout timeout = new Timeout(5, SECONDS);
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void createRetries() throws Exception {
@@ -89,6 +94,19 @@ public class RetriesTest {
         when(retryable.tryOnce()).thenReturn(new Object()).thenReturn(expectedResult);
         Object result = retries.ignoreIfResult(isNotExpectedResult()).perform();
         assertThat(result).isEqualTo(expectedResult);
+    }
+
+    @Test(expected = FailedToComputeAValueException.class)
+    public void allResultsIgnoredThrows() throws Exception {
+        when(retryable.tryOnce()).thenReturn(new Object());
+        retries.ignoreIfResult(isNotExpectedResult()).perform();
+    }
+
+    @Test
+    public void allResultsIgnoredInFutureThrows() throws Exception {
+        when(retryable.tryOnce()).thenReturn(new Object());
+        expectedException.expectCause(isA(FailedToComputeAValueException.class));
+        retries.ignoreIfResult(isNotExpectedResult()).performInFuture().get();
     }
 
     private Predicate<Object> isNotExpectedResult() {
