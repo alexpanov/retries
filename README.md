@@ -1,7 +1,6 @@
 [![Build Status](https://travis-ci.org/alexpanov/retries.svg)](https://travis-ci.org/alexpanov/retries)
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/c7dnnthq4ksq3960/branch/master?svg=true)](https://ci.appveyor.com/project/alexpanov/retries/branch/master)
 [![Coverage](https://coveralls.io/repos/alexpanov/retries/badge.svg?branch=master&service=github)](https://coveralls.io/github/alexpanov/retries?branch=master)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/me.alexpanov/retries/badge.png)](https://maven-badges.herokuapp.com/maven-central/me.alexpanov/retries/)
 
 #Retries
 You need to make a call that may fail. You need to wait for a value that meets you criteria. You write your own retry boilerplate. **Why**?
@@ -37,7 +36,7 @@ Retryable<String> retryable = new Retryable<String>() {
 ```java
 String resultAfterRetries = new Retries<String>(retryable).stopOnMaxFailures(1).perform();
 ```
-Code above will throw a subclass of **RetryException**:
+Code above will throw a subclass of ```RetryException```:
 ```
 me.alexpanov.retries.FailedToComputeAValueException
 ```
