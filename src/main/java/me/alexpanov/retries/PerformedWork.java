@@ -4,26 +4,22 @@ import com.google.common.base.Optional;
 
 final class PerformedWork<Result> {
 
-    private final int numberOfTries;
+    private final RetriesCount retriesCount;
     private final StopCriteria<Result> stopCriteria;
     private final Optional<Result> lastResult;
 
-    public PerformedWork(StopCriteria<Result> stopCriteria) {
-        this(stopCriteria, Optional.<Result>absent(), 0);
+    PerformedWork(RetriesCount retriesCount, StopCriteria<Result> stopCriteria) {
+        this(stopCriteria, Optional.<Result>absent(), retriesCount);
     }
 
-    private PerformedWork(StopCriteria<Result> stopCriteria, Optional<Result> lastResult, int numberOfTries) {
+    private PerformedWork(StopCriteria<Result> stopCriteria, Optional<Result> lastResult, RetriesCount retriesCount) {
         this.stopCriteria = stopCriteria;
         this.lastResult = lastResult;
-        this.numberOfTries = numberOfTries;
-    }
-
-    int numberOfTries() {
-        return numberOfTries;
+        this.retriesCount = retriesCount;
     }
 
     PerformedWork<Result> tryEndedIn(Optional<Result> result) {
-        return new PerformedWork<Result>(stopCriteria, result, numberOfTries + 1);
+        return new PerformedWork<Result>(stopCriteria, result, retriesCount.increment());
     }
 
     Optional<Result> lastResult() {
@@ -31,11 +27,11 @@ final class PerformedWork<Result> {
     }
 
     boolean isDone() {
-        return !stopCriteria.shouldBeContinuedAfter(this);
+        return retriesCount.isMaxReached() || !stopCriteria.shouldContinue(lastResult());
     }
 
     Optional<Result> workResult() {
-        if (stopCriteria.anyRuleMatches(this)) {
+        if (stopCriteria.shouldContinue(lastResult())) {
             return Optional.absent();
         }
         return lastResult();

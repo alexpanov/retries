@@ -14,7 +14,8 @@ final class ExecutionOfRetryable<Result> {
 
     ExecutionOfRetryable(Retryable<Result> retryable,
                          Optional<Result> defaultResult,
-                         Collection<FailureSubscriber<Result>> failureSubscribers, StopCriteria<Result> stopCriteria,
+                         Collection<FailureSubscriber<Result>> failureSubscribers,
+                         StopCriteria<Result> stopCriteria,
                          long timeout) {
 
         this.retryable = retryable;
@@ -25,7 +26,7 @@ final class ExecutionOfRetryable<Result> {
     }
 
     Result perform() {
-        PerformedWork<Result> performedWork = new PerformedWork<Result>(stopCriteria);
+        PerformedWork<Result> performedWork = stopCriteria.startNewWork();
         return computeResult(performedWork);
     }
 
@@ -46,9 +47,6 @@ final class ExecutionOfRetryable<Result> {
         }
         throw new FailedToComputeAValueException();
     }
-
-
-
 
     private Optional<Result> obtainResultOfOneTry() {
         try {

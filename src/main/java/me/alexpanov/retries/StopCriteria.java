@@ -1,64 +1,51 @@
 package me.alexpanov.retries;
 
-import java.util.Collections;
-import java.util.Deque;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-
-import static com.google.common.collect.Lists.newLinkedList;
+import com.google.common.base.Predicates;
 
 final class StopCriteria<Result> {
 
-    private final Deque<Predicate<PerformedWork<Result>>> rules;
-
+    private final Predicate<Optional<Result>> rules;
     private final int maxRetries;
 
     StopCriteria() {
-        this(2, Collections.<Predicate<PerformedWork<Result>>>singleton(new ResultNotPresentRule<Result>()));
+        this(2, new ResultNotPresentRule<Result>());
     }
 
-    private StopCriteria(int maxRetries, Iterable<Predicate<PerformedWork<Result>>> rules) {
+    private StopCriteria(int maxRetries, Predicate<Optional<Result>> rules) {
         this.maxRetries = maxRetries;
-        this.rules = newLinkedList(rules);
+        this.rules = rules;
     }
 
-    StopCriteria<Result> withContinueRule(Predicate<PerformedWork<Result>> rule) {
-        Deque<Predicate<PerformedWork<Result>>> newRules = newLinkedList(rules);
-        newRules.addFirst(rule);
-        return new StopCriteria<Result>(maxRetries, newRules);
-    }
-
-    boolean shouldBeContinuedAfter(PerformedWork<Result> performedWork) {
-        if (performedWork.numberOfTries() >= maxRetries) {
-            return false;
-        }
-        return anyRuleMatches(performedWork);
-    }
-
-    boolean anyRuleMatches(PerformedWork<Result> performedWork) {
-        Optional<Predicate<PerformedWork<Result>>> aMatch =
-                FluentIterable.from(rules).firstMatch(new MatchedPredicate<PerformedWork<Result>>(performedWork));
-        return aMatch.isPresent();
+    boolean shouldContinue(Optional<Result> result) {
+        return rules.apply(result);
     }
 
     StopCriteria<Result> withContinueOnResultRule(Predicate<? super Result> continueOnResultRule) {
-        Predicate<PerformedWork<Result>> newRule = toPerformedWorkRule(continueOnResultRule);
+        Predicate<Optional<Result>> newRule = toOptionalResultRule(continueOnResultRule);
         return withContinueRule(newRule);
     }
 
-    private Predicate<PerformedWork<Result>> toPerformedWorkRule(final Predicate<? super Result> continueOnResultRule) {
-        return new Predicate<PerformedWork<Result>>() {
+    private Predicate<Optional<Result>> toOptionalResultRule(final Predicate<? super Result> continueOnResultRule) {
+        return new Predicate<Optional<Result>>() {
             @Override
-            public boolean apply(PerformedWork<Result> performedWork) {
-                Optional<Result> lastResult = performedWork.lastResult();
-                return lastResult.isPresent() && continueOnResultRule.apply(lastResult.get());
+            public boolean apply(Optional<Result> lastResult) {
+                return continueOnResultRule.apply(lastResult.get());
             }
         };
     }
 
+    private StopCriteria<Result> withContinueRule(Predicate<Optional<Result>> rule) {
+        Predicate<Optional<Result>> newRules = Predicates.or(rules, rule);
+        return new StopCriteria<Result>(maxRetries, newRules);
+    }
+
     StopCriteria<Result> maxRetries(int maxRetries) {
         return new StopCriteria<Result>(maxRetries, rules);
+    }
+
+    PerformedWork<Result> startNewWork() {
+        return new PerformedWork<Result>(new RetriesCount(maxRetries), this);
     }
 }
