@@ -88,7 +88,7 @@ public class RetriesIT {
                                                                         .waitAfterFailureAtLeast(sleepTimeout,
                                                                                                  MILLISECONDS);
         Stopwatch stopwatch = Stopwatch.createStarted();
-        retries.performInFuture();
+        retries.performAsync();
         assertThat(stopwatch.stop().elapsed(MILLISECONDS)).isLessThanOrEqualTo(sleepTimeout / 2);
     }
 
@@ -97,7 +97,7 @@ public class RetriesIT {
         Retries<String> retries = new Retries<String>(failTillLastTry()).stopOnMaxFailures(maxRetries)
                                                                         .waitAfterFailureAtLeast(sleepTimeout,
                                                                                                  MILLISECONDS);
-        Future<String> future = retries.performInFuture();
+        Future<String> future = retries.performAsync();
         assertThat(future.get()).isEqualTo(result);
     }
 }

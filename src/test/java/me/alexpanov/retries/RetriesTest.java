@@ -106,7 +106,7 @@ public class RetriesTest {
     public void allResultsIgnoredInFutureThrows() throws Exception {
         when(retryable.tryOnce()).thenReturn(new Object());
         expectedException.expectCause(isA(FailedToComputeAValueException.class));
-        retries.ignoreIfResult(isNotExpectedResult()).performInFuture().get();
+        retries.ignoreIfResult(isNotExpectedResult()).performAsync().get();
     }
 
     private Predicate<Object> isNotExpectedResult() {

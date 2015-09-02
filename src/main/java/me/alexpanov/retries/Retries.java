@@ -2,7 +2,6 @@ package me.alexpanov.retries;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Optional;
@@ -13,7 +12,7 @@ import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 /**
  * Allows specification of retry strategy to repeat calls to a function unless all of the conditions are met.
- * Null result are skipped and other skip critera can be specified through predicates.
+ * Null results are skipped and other skip critera can be specified through predicates.
  * If no acceptable value is returned a default value will be returned if specified.
  * Default number of retries is 2.
  *
@@ -91,18 +90,17 @@ public final class Retries<Result> {
     }
 
     /**
-     * Carry out the retries in future.
+     * Carry out the retries asynchronously.
      *
      * @throws RetryException if no satisfactory value was computed and no default value was provided.
      */
-    public Future<Result> performInFuture() {
-        FutureTask<Result> task = new FutureTask<Result>(new Callable<Result>() {
+    public Future<Result> performAsync() {
+        Callable<Result> callable = new Callable<Result>() {
             @Override
             public Result call() throws Exception {
                 return perform();
             }
-        });
-        newSingleThreadExecutor().submit(task);
-        return task;
+        };
+        return newSingleThreadExecutor().submit(callable);
     }
 }
