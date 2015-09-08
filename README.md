@@ -13,12 +13,12 @@ Add **retries** to your dependencies. Note that *Guava is automatically added to
 <dependency>
     <groupId>me.alexpanov</groupId>
     <artifactId>retries</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
 </dependency>
 ```
 ###Gradle:
 ```groovy
-compile "me.alexpanov:retries:0.0.2"
+compile "me.alexpanov:retries:0.0.3"
 ```
 
 ##Getting started
@@ -32,11 +32,21 @@ Retryable<String> retryable = new Retryable<String>() {
             }
         };
 ```
-###One call, one failure, RetryException is thrown
+###One call, one failure, ```RetryException``` is thrown
 ```java
 String resultAfterRetries = new Retries<String>(retryable).stopOnMaxFailures(1).perform();
 ```
 Code above will throw a subclass of ```RetryException```:
+```
+me.alexpanov.retries.FailedToComputeAValueException
+```
+
+###Same thing asynchronously, ```java.util.concurrent.ExecutionException``` is thrown
+```java
+Future<String> resultAfterRetries = new Retries<String>(retryable).stopOnMaxFailures(1).performAsync();
+String result = resultAfterRetries.get();
+```
+Code above will throw an ```ExecutionException``` with a subclass of ```RetryException``` as a cause:
 ```
 me.alexpanov.retries.FailedToComputeAValueException
 ```

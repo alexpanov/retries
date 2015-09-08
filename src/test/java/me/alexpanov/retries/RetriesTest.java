@@ -1,5 +1,7 @@
 package me.alexpanov.retries;
 
+import java.util.concurrent.Future;
+
 import com.google.common.base.Predicate;
 import com.google.common.testing.NullPointerTester;
 
@@ -14,7 +16,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -105,8 +106,9 @@ public class RetriesTest {
     @Test
     public void allResultsIgnoredInFutureThrows() throws Exception {
         when(retryable.tryOnce()).thenReturn(new Object());
-        expectedException.expectCause(isA(FailedToComputeAValueException.class));
-        retries.ignoreIfResult(isNotExpectedResult()).performAsync().get();
+//        expectedException.expectCause(isA(FailedToComputeAValueException.class));
+        Future<Object> objectFuture = retries.ignoreIfResult(isNotExpectedResult()).performAsync();
+        objectFuture.get();
     }
 
     private Predicate<Object> isNotExpectedResult() {
