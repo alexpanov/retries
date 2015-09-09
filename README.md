@@ -8,7 +8,7 @@ Throw it away. You need not to support it anymore.
 
 ##Motivation
 Have you ever written a retry/wait code that looks like this?
-```
+```java
 private String computeWithRetries() {
     int numberOfTries = 10;
     int sleepTimeout = 1000; // one sec
@@ -30,7 +30,7 @@ private String computeWithRetries() {
     throw new RuntimeException("Could not compute anything");
 }
 ```
-**Ugh**. That's terrible and you know it. It's hard to figure out what's going on, hard to change, and easy to get it wrong. Luckily, **there is an alternative**.
+**Ugh**. That's terrible and you know it. It's hard to figure out what's going on, hard to extend, hard to reuse and easy to get it wrong. Luckily, **there is an alternative**.
 
 ##Build tools
 Add **retries** to your dependencies. Note that *Guava is automatically added too*.
