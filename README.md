@@ -3,8 +3,34 @@
 [![Coverage](https://coveralls.io/repos/alexpanov/retries/badge.svg?branch=master&service=github)](https://coveralls.io/github/alexpanov/retries?branch=master)
 
 #Retries
-You need to make a call that may fail. You need to wait for a value that meets you criteria. You write your own retry boilerplate. **Why**?
+You need to make a call that may fail. You need to wait for a value that meets your criteria. You write your own retry boilerplate. **Why**?
 Throw it away. You need not to support it anymore.
+
+##Motivation
+Have you ever written a retry/wait code that looks like this?
+```
+private String computeWithRetries() {
+    int numberOfTries = 10;
+    int sleepTimeout = 1000; // one sec
+    for (int i = 0; i < numberOfTries; i++) {
+        try {
+            String value = computeValue();
+        } catch (Exception e) {
+            try {
+                Thread.sleep(sleepTimeout);
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+            }
+            continue;
+        }
+        if (value != null && !value.startsWith("B")) {
+            return value;
+        }
+    }
+    throw new RuntimeException("Could not compute anything");
+}
+```
+**Ugh**. That's terrible and you know it. It's hard to figure out what's going on, hard to change, and easy to get it wrong. Luckily, **there is an alternative**.
 
 ##Build tools
 Add **retries** to your dependencies. Note that *Guava is automatically added too*.
