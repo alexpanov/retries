@@ -2,11 +2,11 @@
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/c7dnnthq4ksq3960/branch/master?svg=true)](https://ci.appveyor.com/project/alexpanov/retries/branch/master)
 [![Coverage](https://coveralls.io/repos/alexpanov/retries/badge.svg?branch=master&service=github)](https://coveralls.io/github/alexpanov/retries?branch=master)
 
-#Retries
+# Retries
 You need to make a call that may fail. You need to wait for a value that meets your criteria. You write your own retry boilerplate. **Why**?
 Throw it away. You need not to support it anymore.
 
-##Motivation
+## Motivation
 Have you ever written a retry/wait code that looks like this?
 ```java
 private String computeWithRetries() {
@@ -32,9 +32,9 @@ private String computeWithRetries() {
 ```
 **Ugh**. That's terrible and you know it. It's hard to figure out what's going on, hard to extend, hard to reuse and easy to get it wrong. Luckily, **there is an alternative**.
 
-##Build tools
+## Build tools
 Add **retries** to your dependencies. Note that *Guava is automatically added too*.
-###Maven:
+### Maven:
 ```xml
 <dependency>
     <groupId>me.alexpanov</groupId>
@@ -42,12 +42,12 @@ Add **retries** to your dependencies. Note that *Guava is automatically added to
     <version>0.0.3</version>
 </dependency>
 ```
-###Gradle:
+### Gradle:
 ```groovy
 compile "me.alexpanov:retries:0.0.3"
 ```
 
-##Getting started
+## Getting started
 Create a retryable:
 ```java
 //Nasty call that returns so much nulls
@@ -58,7 +58,7 @@ Retryable<String> retryable = new Retryable<String>() {
             }
         };
 ```
-###One call, one failure, ```RetryException``` is thrown
+### One call, one failure, ```RetryException``` is thrown
 ```java
 String resultAfterRetries = new Retries<String>(retryable).stopOnMaxFailures(1).perform();
 ```
@@ -67,7 +67,7 @@ Code above will throw a subclass of ```RetryException```:
 me.alexpanov.retries.FailedToComputeAValueException
 ```
 
-###Same thing asynchronously, ```java.util.concurrent.ExecutionException``` is thrown
+### Same thing asynchronously, ```java.util.concurrent.ExecutionException``` is thrown
 ```java
 Future<String> resultAfterRetries = new Retries<String>(retryable).stopOnMaxFailures(1).performAsync();
 String result = resultAfterRetries.get();
@@ -77,7 +77,7 @@ Code above will throw an ```ExecutionException``` with a subclass of ```RetryExc
 me.alexpanov.retries.FailedToComputeAValueException
 ```
 
-###One call, one failure, default value is returned
+### One call, one failure, default value is returned
 ```java
 String resultAfterRetries = new Retries<String>(retryable).stopOnMaxFailures(1)
                                                           .orElse("default value")
@@ -85,7 +85,7 @@ String resultAfterRetries = new Retries<String>(retryable).stopOnMaxFailures(1)
 resultAfterRetries.equals("default value"); //true
 ```
 
-###Several calls, configured wait timeout
+### Several calls, configured wait timeout
 ```java
 String resultAfterRetries = new Retries<String>(retryable).stopOnMaxFailures(10)
                                                           .waitAfterFailureAtLeast(10, TimeUnit.SECONDS)
@@ -93,7 +93,7 @@ String resultAfterRetries = new Retries<String>(retryable).stopOnMaxFailures(10)
                                                           .perform();
 ```
 
-###Ignoring results
+### Ignoring results
 ```java
 Predicate<String> startsWithLetterB = new Predicate<String>() {
             @Override
@@ -106,7 +106,7 @@ String resultAfterRetries = new Retries<String>(retryable).stopOnMaxFailures(2)
                                                           .perform();
 ```
 
-###Subscribing to failures for logging etc.
+### Subscribing to failures for logging etc.
 ```java
 FailureSubscriber<String> logTheError = new FailureSubscriber<String>() {
             @Override
@@ -120,14 +120,14 @@ String resultAfterRetries = new Retries<String>(retryable).stopOnMaxFailures(10)
 ```
 The code above will append a log message each time a call failed (exception, null or skipped result).
                     
-##But what about my Callable(s)!?
+## But what about my Callable(s)!?
 I got you covered, man.
 ```java
 Retryable<String> retryable = new CallableToRetryable<String>(yourCallable);
 ```
 
-##Licence
+## Licence
 [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-##Issues
-Please feel free to add any issue regarding new functionality, improvements etc. in [Issues section](https://github.com/alexpanov/retries/issues)
+## Issues
+Please feel free to add any issues regarding new functionality, improvements etc. in the [Issues section](https://github.com/alexpanov/retries/issues)
